@@ -59,6 +59,44 @@ plt.title('Number of digits classes',fontsize = 20, color = 'b')
 
 #### Step 2: Build CNN model to recognize images 
 File: Digit recognition code.ipynb 
+
+```python 
+from sklearn.metrics import confusion_matrix
+import itertools
+
+from keras.models import Sequential
+from keras.layers import Conv2D, MaxPool2D, Dropout, Dense, Flatten, BatchNormalization
+from keras.optimizers import RMSprop, Adam
+from keras.preprocessing.image import ImageDataGenerator
+from keras.callbacks import ReduceLROnPlateau
+
+model = Sequential()
+
+# layer 1
+model.add(Conv2D(filters= 8, kernel_size = (5,5), padding = 'Same', activation = 'relu', input_shape = (28,28,1)))
+model.add(BatchNormalization())
+model.add(MaxPool2D(pool_size = (2,2)))
+model.add(Dropout(0.25))
+
+# layer 2
+model.add(Conv2D(filters = 16, kernel_size = (3,3), padding = 'Same', activation = 'relu'))
+model.add(BatchNormalization())
+model.add(MaxPool2D(pool_size = (2,2)))
+model.add(Dropout(0.2))
+
+# layer 3
+model.add(Conv2D(filters = 32, kernel_size= (3,3), padding = 'Same', activation = 'relu'))
+model.add(BatchNormalization())
+model.add(MaxPool2D(pool_size = (2,2)))
+model.add(Dropout(0.2))
+
+# fully connected layer 
+model.add(Flatten())
+model.add(Dense(256, activation= 'relu'))
+model.add(Dropout(0.5))
+model.add(Dense(10, activation = 'softmax'))
+```
+Summary: 
  - Two models (with and without using Batch normalizations) are built.
  - Optimizer method: Adam with learning rate lr = 0.001
  - Metric: accuracy
