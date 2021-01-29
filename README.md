@@ -1,1 +1,3 @@
-# Digit-recognition-with-CNN
+## Digit recognition with CNN
+
+#### Download dataset from Kaggle 
