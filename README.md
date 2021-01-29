@@ -58,42 +58,62 @@ plt.title('Number of digits classes',fontsize = 20, color = 'b')
 
 
 #### Step 2: Build CNN model to recognize images 
+File: Digit recognition code.ipynb 
+ - Two models (with and without using Batch normalizations) are built.
+ - Optimizer method: Adam with learning rate lr = 0.001
+ - Metric: accuracy
+ - Batch size: 128
+ - Number of epoches: 30
+ 
+ Results: 
+ - The accuracy corresponding to the first model (with batch normalization) is up to 99.17 % in the validation set
+ - The accuracy corresponding to the second model (without batch normalization) is up to 99.11 % in the validation set, which a less than the one in the first case. 
+ 
+ ![accuracy](https://user-images.githubusercontent.com/69978820/106288760-bc39bd00-6248-11eb-942b-dbe9f9b4b2f3.png)
+
+#### Step 3: Load and apply the pre-trained model to recognize the new images in the test set
+File: Load model and predict.ipynb
+
 ```python 
-from sklearn.metrics import confusion_matrix
-import itertools
+import pandas as pd 
+import numpy as np
+```
+Read the test data: 
+```python
+test = pd.read_csv('test.csv')
+```
+Normalize data: 
 
-from keras.models import Sequential
-from keras.layers import Conv2D, MaxPool2D, Dropout, Dense, Flatten, BatchNormalization
-from keras.optimizers import RMSprop, Adam
-from keras.preprocessing.image import ImageDataGenerator
-from keras.callbacks import ReduceLROnPlateau
+```python
+test = test/255
+```
+Reshape to size (28,28)
 
-model = Sequential()
+```python 
+X_test = test.values.reshape(-1, 28, 28, 1)
+```
+Load model and weights which are saved in file ``Digit recognition code.ipynb```
 
-# layer 1
-model.add(Conv2D(filters= 8, kernel_size = (5,5), padding = 'Same', activation = 'relu', input_shape = (28,28,1)))
-model.add(BatchNormalization())
-model.add(MaxPool2D(pool_size = (2,2)))
-model.add(Dropout(0.25))
+```python 
+from keras.models import load_model
 
-# layer 2
-model.add(Conv2D(filters = 16, kernel_size = (3,3), padding = 'Same', activation = 'relu'))
-model.add(BatchNormalization())
-model.add(MaxPool2D(pool_size = (2,2)))
-model.add(Dropout(0.2))
+model_1 = load_model('model_case1.h5')
+model_1.load_weights('weights_case1.hdf5')
 
-# layer 3
-model.add(Conv2D(filters = 32, kernel_size= (3,3), padding = 'Same', activation = 'relu'))
-model.add(BatchNormalization())
-model.add(MaxPool2D(pool_size = (2,2)))
-model.add(Dropout(0.2))
+y_test_pred = model_1.predict(X_test)
+classes_test_pred = np.argmax(y_test_pred, axis = 1)
+```
 
-# fully connected layer 
-model.add(Flatten())
-model.add(Dense(256, activation= 'relu'))
-model.add(Dropout(0.5))
-model.add(Dense(10, activation = 'softmax'))
+Compare randomly the predicted results to the true images:
+```python 
+import matplotlib.pyplot as plt 
+import random
 
+ind = random.randint(0, len(X_test))
+print('At the index: ', ind)
+print('Predicted value is: ', classes_test_pred[ind])
 
-
-
+print('The real value is: ')
+plt.imshow(X_test[ind].reshape(28,28))
+```
+![predict](https://user-images.githubusercontent.com/69978820/106289854-0bccb880-624a-11eb-995f-205e9bd9adf1.png)
